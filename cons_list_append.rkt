@@ -48,4 +48,21 @@
 (+ (first (list 1)) (first (list 1)))
 
 
-(append (list 1 2 3 4) (list 5))
+
+(+ '1 '2)
+
+
+(list-set (list "jc" "claire" "kate") 2 "hello")
+(index-of (list 1 2 3 4 ) 1 )
+(reverse (list 1 2 3 4 5 6 7 8 9))
+(member 3 (list 1 2 3 4 5 6 7 8 9))
+(round (/ (length (list 1 2 3 4)) 2))
+(list-ref (list 1 2 3 4) 2)
+(take '('a 'b 'c 'd 'e 'f) 2)
+
+;(and integer? (not negative? 0))
+(not (negative? 0))
+(integer? -1)
+(real? 1.7)
+(real? 0)
+(real? -1)
