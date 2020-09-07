@@ -124,7 +124,7 @@
 ;Solved by myself: Y 
 ;Time taken: 11
 ;[contract] vehicle-tax: Vehicle -> string
-;[purpose] to count the total amount of tax that should be paid the Vehicle
+;[purpose] to test safety of the Vehicle  
 ;[tests](test (is-vehicle-safe (Airplane 8 80 4)) "safe")
 ;       (test (is-vehicle-safe (Airplane 5 5 5)) "unsafe")
 ;       (test (is-vehicle-safe (Car 4 3)) "safe")
