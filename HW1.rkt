@@ -134,9 +134,9 @@
 (define (is-vehicle-safe theVehicle)
   (cond
    {(type-case Vehicle theVehicle
-    [Bicycle (wheels) (< wheels 4)]
-    [Car (wheels windows) (and (> wheels 3) (> windows 2))]
-    [Airplane (wheels windows engines) (and (> wheels 2) (and (> windows 10) (> engines 1)))]
+    [Bicycle (wheels) (<= wheels 4)]
+    [Car (wheels windows) (and (>= wheels 3) (>= windows 2))]
+    [Airplane (wheels windows engines) (and (>= wheels 2) (and (>= windows 10) (>= engines 1)))]
     ) "safe"}
    {else "unsafe"}
    )

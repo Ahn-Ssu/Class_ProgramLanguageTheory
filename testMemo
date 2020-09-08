@@ -1,0 +1,57 @@
+; p1
+(test (get-average 3 5) 4)
+(test (get-average 95 83) 89)
+(test (get-average 4 9) 6.5)
+
+; p2
+(test (inchworm-travel 1) 2.54)
+(test (inchworm-travel 33) 83.82 )
+(test (inchworm-travel 3.3) 8.382)
+
+; p3
+(test (volume-cube 3) 27)
+(test (volume-cube 77) 456533)
+(test (volume-cube 9.4) 830.584)
+
+; p4
+(test(my-BMI 83 1.9) 23)
+(test (my-BMI 45 1.59) 18)
+(test (my-BMI 65 1.71) 22)
+
+; p5
+(test (fib 0) (list ))
+(test (fib 1) (list 1))
+(test (fib 2) (list 1 1))
+(test (fib 3) (list 1 1 2))
+(test (fib 4) (list 1 1 2 3))
+(test (fib 7) (list 1 1 2 3 5 8 13))
+
+; p6-b
+(test (vehicle-tax (Airplane 5 5 5))15)
+(test (vehicle-tax (Bicycle 3)) 3)
+(test (vehicle-tax (Car 4 2)) 6)
+
+; p6-c
+(test (is-vehicle-safe (Airplane 8 80 4)) "safe")
+(test (is-vehicle-safe (Airplane 5 5 5)) "unsafe")
+(test (is-vehicle-safe (Car 4 3)) "safe")
+(test (is-vehicle-safe (Car 2 2)) "unsafe")
+(test (is-vehicle-safe (Bicycle 1)) "safe")
+(test (is-vehicle-safe (Bicycle 5)) "unsafe")
+
+; p7
+(test (update-name "claire" " is nice" '("jc" "claire" "kate")) '("jc" "claire is nice" "kate"))
+(test (update-name "ahnssu" " is nice" '("jc" "claire" "kate")) '("jc" "claire" "kate"))
+(test (update-name "csee" " is my major" '("handong" "edu" "csee" "hisnet" "CSEE")) '("handong" "edu" "csee is my major" "hisnet" "CSEE"))
+
+; p8
+(test (binary-search '() 3) "the list is empty")
+(test (binary-search '(1 2 3) 4) "the target is not exist")
+(test (binary-search '(1) 1) '(1))
+(test (binary-search '(1 2 3) 2) '(2))
+(test (binary-search '(1 2 3) 3) '(2 3))
+(test (binary-search '(1 2 3 4) 2) '(2))
+(test (binary-search '(1 2 3 4) 4) '(2 3 4))
+(test (binary-search '(1 2 3 4 5 6 7 8) 8) '(4 6 7 8))
+(test (binary-search '(1 2 3 4 5 6 7 8) 3) '(4 2 3))
+(test (binary-search '(1 2 3 4 5 6 7 8 9 10) 9) '(5 8 9))
