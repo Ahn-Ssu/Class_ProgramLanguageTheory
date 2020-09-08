@@ -71,14 +71,14 @@
     [(< n 1)'()]
     [(= n 1) (list 1)]
     [(= n 2) (list 1 1)]
-    [else (append (fib (- n 1)) (list(+ (first(indexing (fib (- n 2)) (- n 2))) (first(indexing (fib (- n 1)) (- n 1))))))]
+    [else (append (fib (- n 1)) (list(+ (first(endE (fib (- n 2)) (- n 2))) (first(endE (fib (- n 1)) (- n 1))))))]
     )
   )
 
-(define (indexing targetList index)
+(define (endE targetList index)
   (cond
     [(= index 1) targetList]
-    [else (indexing (rest targetList) (- index 1))]
+    [else (endE (rest targetList) (- index 1))]
     )
   )
 
@@ -152,7 +152,7 @@
 
 ;Problems 7
 ;Solved by myself: Y 
-;Time taken: 22
+;Time taken: 24
 ;[contract] update-name: string string list -> list
 ;[purpose] to find and replace target in the list after concat target and source 
 ;[tests](test (update-name "claire" " is nice" '("jc" "claire" "kate")) '("jc" "claire is nice" "kate"))
@@ -162,12 +162,16 @@
   (cond
     [(empty? theList) theList]
     [(not (index-of theList target)) theList]
-    [(list-set theList (index-of theList target) (string-append target source))]
-   )
+    [else
+      (update-name target source (append (list-set theList (index-of theList target) (string-append target source))))
+      ]
+   ) 
   )
+
 (test (update-name "claire" " is nice" '("jc" "claire" "kate")) '("jc" "claire is nice" "kate"))
 (test (update-name "ahnssu" " is nice" '("jc" "claire" "kate")) '("jc" "claire" "kate"))
 (test (update-name "csee" " is my major" '("handong" "edu" "csee" "hisnet" "CSEE")) '("handong" "edu" "csee is my major" "hisnet" "CSEE"))
+(test (update-name "jc" " is cool" '("jc" "jc" "kate" "jc" "ahnssu" "jc")) '("jc is cool" "jc is cool" "kate" "jc is cool" "ahnssu" "jc is cool"))
 
 ;Problems 8
 ;Solved by myself: Y 
