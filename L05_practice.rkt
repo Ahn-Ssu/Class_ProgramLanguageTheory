@@ -47,6 +47,18 @@
     )
   )
 
+(define (interp an-ae)
+  (cond
+    [(num? an-ae) (num-n an-ae)]
+    [(add? an-ae) (+ (interp (add-lhs an-ae))
+                     (interp (add-rhs an-ae)))]
+    [(sub? an-ae) (- (interp (add-lhs an-ae))
+                     (interp (add-rhs an-ae)))]
+    )
+  )
+
+    
+
 (test (interp (parse '3)) 3)
 (test (interp (parse '(+ 3 4))) 7)
 (test (interp (parse '(+ (- 3 4) 7))) 6)

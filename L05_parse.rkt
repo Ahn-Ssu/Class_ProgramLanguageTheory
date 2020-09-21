@@ -21,5 +21,6 @@
 (test (parse '3) (num 3))
 (test (parse '{+ 3 4}) (add (num 3) (num 4)))
 (test (parse '{+ {- 5 4} 5}) (add (sub (num 5) (num 4)) (num 5)))
-(parse '{+ 3 4 5}) ; (add (num 3) (num 4))
 (test (first '(- 1 2)) '-)
+(parse '{+ 3 4 5}) ; !!(add (num 3) (num 4))!!
+(parse '{+ {- 2 1 9} 7 8}) ; !!(add (sub (num 2) (num 1)) (num 7))!!
