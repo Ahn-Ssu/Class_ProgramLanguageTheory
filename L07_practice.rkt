@@ -12,7 +12,7 @@
   (match sexp
     [(? number?) (num sexp)]
     [(list '+ l r) (add (parse l)(parse r))]
-    [(list '- l r) (sub (parse l)(parse r))]
+     
     [(list 'with (list i v) e) (with i (parse v) (parse e))]
     [(? symbol?) (id sexp)]
     [else (error 'parse "bad syntax:~a" sexp)]
@@ -43,9 +43,10 @@
 (test (subst (with 'y (id 'x) (id 'y)) 'x 10) (with 'y (num 10) (id 'y)))
 (test (subst (with 'x (id 'y) (id 'x)) 'x 10) (with 'x (id 'y) (id 'x)))
 
+
 ; [contract] interp : WAE -> number
 (define (interp wae)
-  (type-case WAE wae
+  (type-case WAE wae 
     [num (n) n]
     [add (l r) (+ (interp l) (interp r))]
     [sub (l r) (- (interp l) (interp r))]
