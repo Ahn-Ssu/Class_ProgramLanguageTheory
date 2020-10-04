@@ -1,1 +1,9 @@
-#lang plai
+(define-type FunDef
+  [fundef (fun-name symbol?)
+          (arg-name symbol?)
+          (body F1WAE?)]
+  )
+
+(define-type F1WAE
+  [num (n number?)]
+  [add (lhs F1WAE?) (
