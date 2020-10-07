@@ -74,7 +74,9 @@
     [add (l r) (add (subst l bound-id actual-value)(subst r bound-id actual-value))]
     [sub (l r) (sub (subst l bound-id actual-value)(subst r bound-id actual-value))]
     [with (i v e) (with i (subst v bound-id actual-value) ; with i ( lhs , rhs ) 의 형태를 가지게 됨 
-                        (if (symbol=? i bound-id) e (subst e bound-id actual-value)))] ; if 문에서 조건이 참이면 왼항, 거짓이면 오른항 수행 
+                        (if (symbol=? i bound-id)
+                         e 
+                         (subst e bound-id actual-value)))] ; if 문에서 조건이 참이면 왼항, 거짓이면 오른항 수행 
     [id (s) (if (symbol=? s bound-id) (num actual-value) wae)]
     [app (f a) (app f (subst a idtf val))]
     )
