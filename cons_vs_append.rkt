@@ -21,6 +21,9 @@
 (test (list? '(()) ) #t) ; empty가 선행인자일때 역할
 (eq? empty '())
 (list? '())
+(append empty empty)
+(append '() '())
+(empty? '())
 
 ; 리스트는 null이거나 두번째 값이 list인 pair이다 
 ; 콘스 정리, i) 뒤에 있는 element가 list인 경우 뒤에 있는 elements를 모두 앞에 있는 elements를 포함하여 새로운 리스트를 만들어 냄
