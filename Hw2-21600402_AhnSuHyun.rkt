@@ -78,29 +78,21 @@
 ;[purpose] to find bound-ids identifiers in a PWAE
 (define (bound-ids pwae)
   (type-case PWAE pwae
-    [num (n) '()]
-    [op (op-n) '()]
-    [id (s) (list s)]
-    [postfix (l r op) (checkDuplication (bound-ids l) (bound-ids r))]
-    [substitute (i v e k) (append (checker e i) (bound-ids e))] ;  (if(eq? i (bound-ids e)) i (checker e i))
+    [postfix (l r opType) ((bound-ids l) (bound-ids r))]
+    [substitute (i v e k) (boundFinder e i) ] ;  (if(eq? i (bound-ids e)) i (checker e i))
     [else '()]
-    ) 
-  )
-
-(define (checker theExp bindingID)
-  (cond
-    [(empty? theExp) '()]
-    [(PWAE? theExp)
-     (if (eq? bindingID (first (bound-ids theExp)))
-         (list bindingID)
-         (checker (rest (bound-ids theExp)) bindingID))]
-    [else
-     (if (eq? bindingID (first theExp))
-         (list bindingID)
-         (checker (rest theExp) bindingID))
-     ]
     )
   )
+
+(define (boundFinder pwae bound-id)
+  (type-case PWAE pwae
+    [postfix (l r opType) (checkDuplication (boundFinder l bound-id) (boundFinder r bound-id) )]
+    [substitute (i v e k) (if(symbol=? i bound-id) (list bound-id) (boundFinder e bound-id))]
+    [id (s) (if (symbol=? s bound-id) (list bound-id) '())]
+    [else '()]
+    )
+  )
+
 (test (bound-ids (substitute 'x (num 3) (postfix (id 'y) (num 3) (op 'add)) (keyword 'with))) '())
 (test (bound-ids (substitute 'x (num 3) (postfix (id 'x) (postfix (id 'x) (id 'y) (op 'sub)) (op 'add)) (keyword 'with))) '(x))
 (test (bound-ids (substitute 'x (num 3) (postfix (id 'x) (substitute 'y (num 7) (postfix (id 'x) (id 'y) (op 'sub)) (keyword 'with)) (op 'add)) (keyword 'with))) '(x y))
