@@ -56,7 +56,16 @@
   )
 ;[contract] parse: PWAE -> list-of-sym
 ;[purpose] to find free identifiers in a PWAE
+(define (free-ids pwae)
+  (type-case PWAE pwae
+   
+    )
+  )
 
+(define (freeFinder pwae bound-id)
+  (type-case PWAE pwae
+    )
+  )
 ;[contract] parse: PWAE -> list-of-sym
 ;[purpose] to find binding-ids identifiers in a PWAE
 
