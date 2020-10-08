@@ -25,6 +25,7 @@
 (test (list empty) '(()))
 (test (list) '())
 (test (list empty (cons 1 2) '(l i s t)) '(() (1 . 2) (l i s t)) )
+(test (list? '()) #t)
 
 ; 리스트는 null이거나 두번째 값이 list인 pair이다 
 ; 리스트 정리
