@@ -11,7 +11,7 @@
 
 ;Problems 1-(a)
 ;Solved by myself: Y
-;Time taken: 12
+;Time taken: 12m
 ;[purpose] Define a type for Postfix WAE, PWAE. 
 
 (define-type PWAE
@@ -30,7 +30,7 @@
 
 ;Problems 1-(b)
 ;Solved by myself: Y
-;Time taken: 10-15
+;Time taken: 10-15m
 ;[contract] parse: sexp -> PWAE
 ;[purpose] to convert s-expression into PWAE
 ;[tests](test (parse '{3 4 -}) (postfix (num 3) (num 4) (op 'sub)))
@@ -74,14 +74,13 @@
   )
 ;Problems 2
 ;Solved by myself: Y
-;Time taken: 75 - 90 ( I solved this problem last. )
-;[contract] parse: PWAE -> list-of-sym
+;Time taken: 150m ( I solved this problem last. )
+;[contract] free-ids : PWAE -> list-of-sym
 ;[purpose] to find free identifiers in a PWAE
 ;[tests](test (free-ids (substitute 'x (num 3) (postfix (id 'x) (postfix (num 3) (id 'x) (op 'sub)) (op 'add)) (keyword 'with))) '())
 ;       (test (free-ids (postfix (id 'x) (id 'k) (op 'sub))) '(k x))
 ;       (test (free-ids (substitute 'x (num 3) (postfix (id 'y) (substitute 'y (num 7) (postfix (id 'x) (postfix (id 'b) (id 'a) (op 'sub)) (op 'add)) (keyword 'with)) (op 'sub)) (keyword 'with))) '(a b y))
 ;       (test (free-ids (postfix (substitute 'x (num 10) (substitute 'x (num 3) (postfix (id 'y) (substitute 'y (num 7) (postfix (id 'x) (postfix (id 'c) (id 'b) (op 'sub)) (op 'add)) (keyword 'with)) (op 'sub)) (keyword 'with)) (keyword 'with)) (substitute 'a (id 'd) (id 'z) (keyword 'with)) (op 'add))) '(b c d y z))
-
 (define (free-ids pwae)
   (type-case PWAE pwae
     [postfix (l r opType) (checkDuplication (free-ids l) (free-ids r))]
@@ -93,6 +92,8 @@
     )
   )
 
+;[contract] freeFinder :  PWAE symbol -> PWAE
+;[purpose] to replace bound identifier to num value
 (define (freeFinder pwae bound-id)
   (type-case PWAE pwae
     [num (n) pwae]
@@ -105,7 +106,8 @@
     [else '()]
     )
   )
-'free
+
+
 (test (free-ids (postfix (id 'x) (id 'k) (op 'sub))) '(k x))
 (test (free-ids (postfix (substitute 'x (num 10) (substitute 'x (num 3) (postfix (id 'y) (substitute 'y (num 7) (postfix (id 'x) (postfix (id 'c) (id 'b) (op 'sub)) (op 'add)) (keyword 'with)) (op 'sub)) (keyword 'with)) (keyword 'with)) (substitute 'a (id 'd) (id 'a) (keyword 'with)) (op 'add))) '(b c d y))
 (test (free-ids (postfix (substitute 'x (num 10) (substitute 'x (num 3) (postfix (id 'y) (substitute 'y (num 7) (postfix (id 'x) (postfix (id 'c) (id 'b) (op 'sub)) (op 'add)) (keyword 'with)) (op 'sub)) (keyword 'with)) (keyword 'with)) (substitute 'a (id 'd) (id 'z) (keyword 'with)) (op 'add))) '(b c d y z))
@@ -119,7 +121,7 @@
                    )
       '(a b c k)
       )
-'free
+
 
 (test (free-ids (substitute 'x (num 3) (postfix (id 'x) (postfix (num 3) (id 'x) (op 'sub)) (op 'add)) (keyword 'with))) '())
 (test (free-ids (substitute 'x (num 3) (postfix (id 'a) (postfix (num 4) (id 'x) (op 'add)) (op 'sub)) (keyword 'with))) '(a))
@@ -134,8 +136,8 @@
 
 ;Problems 3
 ;Solved by myself: Y
-;Time taken: 15 - 25
-;[contract] parse: PWAE -> list-of-sym
+;Time taken: 15 - 25m
+;[contract] binding-ids: PWAE -> list-of-sym
 ;[purpose] to find binding-ids identifiers in a PWAE
 ;[tests](test (binding-ids (substitute 'a (num 3) (postfix (id 'a) (id 'c) (op 'sub)) (keyword 'with))) '(a))
 ;       (test (binding-ids (postfix (substitute 'x (num 10) (substitute 'x (num 3) (postfix (id 'y) (substitute 'y (num 7) (postfix (id 'x) (postfix (id 'c) (id 'b) (op 'sub)) (op 'add)) (keyword 'with)) (op 'sub)) (keyword 'with)) (keyword 'with)) (substitute 'a (id 'd) (id 'z) (keyword 'with)) (op 'add))) '(a x y))
@@ -172,8 +174,8 @@
 
 ;Problems 4
 ;Solved by myself: Y
-;Time taken: 360
-;[contract] parse: PWAE -> list-of-sym
+;Time taken: 360m
+;[contract] bound-ids: PWAE -> list-of-sym
 ;[purpose] to find bound-ids(not free) identifiers in a PWAE
 ;[tests](test (bound-ids (substitute 'x (num 3) (postfix (id 'y) (num 3) (op 'add)) (keyword 'with))) '())
 ;       (test (bound-ids (postfix (id 'x) (id 'y) (op 'add))) '())
@@ -186,7 +188,8 @@
     [else '()]
     )
   )
-
+;[contract] boundFinder :  PWAE symbol -> list-of-sym
+;[purpose] to find and make list-of-sym that composed bound identifier 
 (define (boundFinder pwae bound-id)
   (type-case PWAE pwae
     [postfix (l r opType) (checkDuplication (boundFinder l bound-id) (boundFinder r bound-id) )]
