@@ -47,9 +47,7 @@
 ; -------------------------------------------------------------
 ; -------------------------------------------------------------
 (define-type FunDef
-  [fundef (fun-name symbol?)
-          (arg-name symbol?)
-          (body F1WAE?)]
+  [fundef (fun-name symbol?) (arg-name symbol?) (body F1WAE?)]
   )
 (define-type F1WAE
   [num (n number?)]
