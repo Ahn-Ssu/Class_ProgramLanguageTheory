@@ -40,3 +40,23 @@ def first_class(func, arg_list):
 
  return square_list
 """
+
+"""
+Scopeing example
+"""
+# static x (outer scope)
+first_x_of_theScope = 3
+
+def f(arg):
+    return arg + first_x_of_theScope # in our case, we want x to use by 3 
+
+# x for dynamic scope (inner scope)
+x = 5
+print("f({}) : {}".format(4,f(4))) # return value is 7
+x = 10 
+print("f({}) : {}".format(4,f(4))) # return value is 7
+x = 97
+print("f({}) : {}".format(4,f(4))) # return value is 7
+
+
+
