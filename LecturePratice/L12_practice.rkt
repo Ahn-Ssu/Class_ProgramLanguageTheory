@@ -225,7 +225,7 @@
 ; -------------------------------------------------------------
 (define (interp fae ds)
   (type-case FAE fae
-    [num (n) fae]
+    [num (n) (numV n)]
     [add (l r) (num+ (interp l ds) (interp r ds))]
     [sub (l r) (num- (interp l ds) (interp r ds))]
     [id  (s) (lookup s ds)]
