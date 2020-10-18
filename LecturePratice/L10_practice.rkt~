@@ -62,6 +62,3 @@
     [else (error 'parse "bad syntax: ~a" sexp)]
     )
   )
-
-(FWAE? (app (num 1) (num 2)))
-(FWAE? (add (num 4) (fun 'x (id 'x))))

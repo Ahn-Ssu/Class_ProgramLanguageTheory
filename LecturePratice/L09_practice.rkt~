@@ -11,17 +11,6 @@
 (test (mtSub? (aSub 'x 1 (aSub 'y 4 (aSub 'k 2 (mtSub))))) #f)
 (test (mtSub? (mtSub)) #t)
 
-(define (parse sexp)
-  (match sexp
-    [(? number?) (num sexp)]
-    [(list '+ l r) (add (parse l) (parse r))]
-    [(list '- l r) (sub (parse l) (parse r))]
-    [(list 'with (list i v) e) (with i (parse v) (parse e))]
-    [(? symbol?) (id sexp)]
-    [(list f a) (app f (parse a))]
-    [else (error 'parse "bad syntax: ~a" sexp)]
-    )
-  )
 
 ; -------------------------------------------------------------
 ; 이전의 WAE type : id에서 free id를 처리함 
@@ -36,7 +25,15 @@
 ;  )
 ; -------------------------------------------------------------
 
-
+(define (interp wae ds)
+  (type-case WAE wae
+    [num (n) n]
+    [add (l r) (+ (interp l ds) (interp r ds))]
+    [sub (l r) (- (interp l ds) (interp r ds))]
+    [with (i v e) (interp e (aSub i (interp v ds) ds))]
+    [id (s) (lookup s ds)]
+    )
+  )
 
 (define (lookup name ds)
   (type-case DefrdSub ds
@@ -86,11 +83,11 @@
     [num (n) n]
     [add (l r) (+ (interp l fundefs ds) (interp r fundefs ds))]
     [sub (l r) (- (interp l fundefs ds) (interp r fundefs ds))]
-    [with (i v e) (interp e fundefs (aSub i (interp v fundefs ds) ds))]
+    [with (x i b) (interp e fundefs (aSub i (interp v fundefs ds) ds))]
     [id (s) (lookup s ds)]
     [app (f a)
          (local
-           [(define a-fundef (lookup-fundefs f fundefs))]
+           [(define a-fundef (lookup-fundef f fundefs))]
            (interp (fundef-body a-fundef) ; 이 부분이 함수 몸체 -> body expression
                    fundefs
                    (aSub (fundef-arg-name a-fundef)
@@ -100,25 +97,3 @@
          ]
     )
   )
-(define (lookup-fundefs name fundefs)
-  (cond
-    [(empty? fundefs)
-     (error 'lookup-fundef "unknown function")]
-    [else
-     (if (symbol=? name (fundef-fun-name (first fundefs)))
-         (first fundefs)
-         (lookup-fundefs name (rest fundefs)))]
-    )
-  )
-(define (parse-fd sexp)
-  (match sexp
-    [(list 'deffun (list f a) b) (fundef f a (parse b))]
-    )
-  )
-
-(parse '{f 1})
-(parse '(+ x 3))
-(parse-fd '(deffun (f x) (+ x 3)))
-(interp (parse'{f 1}) (list (parse-fd '{deffun (f x){+ x 3}})) (mtSub))
-(list (parse-fd '{deffun (f x){+ x 3}}))
-(interp (app 'f (num 1)) (list (fundef 'f 'x (add (id 'x) (num 3)))) (mtSub))

@@ -38,8 +38,8 @@
 (define (parse sexp)
   (match sexp
     [(? number?) (num sexp)]
-    [(list '+ l r) (add (parse l) (parse r))]
-    [(list '- l r) (sub (parse l) (parse r))]
+    [(list '+ l r) (add parse l) (parse r)]
+    [(list '- l r) (sub parse l) (parse r)]
     [(list 'with (list i v) e) (with i (parse v) (parse e))]
     [(? symbol?) (id sexp)]
     [(list f a) (app f (parse a))]
@@ -58,7 +58,7 @@
     [id (s) (error 'interp "free identifier")]
     [app (f a)
          (local
-           [(define a_fundef (lookup-fundefs f fundefs))]
+           [(define a_fundef (lookup-fundef f fundefs))]
            (interp (subst (fundef-body a_fundef)
                           (fundef-arg-name a_fundef)
                           (interp a fundefs))
@@ -67,35 +67,19 @@
          ]
     )
   )
-
-(define (lookup-fundefs name fundefs)
-  (cond
-    [(empty? fundefs)
-     (error 'lookup-fundef "unknown function")]
-    [else
-     (if (symbol=? name (fundef-fun-name (first fundefs)))
-         (first fundefs)
-         (lookup-fundefs name (rest fundefs)))]
-    )
-  )
-
 ; +
-(define (subst f1wae bound-id actual-value)
-  (type-case F1WAE f1wae
-    [num (n) f1wae]
+(define (subst wae bound-id actual-value)
+  (type-case WAE wae
+    [num (n) wae]
     [add (l r) (add (subst l bound-id actual-value)(subst r bound-id actual-value))]
     [sub (l r) (sub (subst l bound-id actual-value)(subst r bound-id actual-value))]
     [with (i v e) (with i (subst v bound-id actual-value) ; with i ( lhs , rhs ) 의 형태를 가지게 됨 
                         (if (symbol=? i bound-id)
                          e 
                          (subst e bound-id actual-value)))] ; if 문에서 조건이 참이면 왼항, 거짓이면 오른항 수행 
-    [id (s) (if (symbol=? s bound-id) (num actual-value) f1wae)]
-    [app (f a) (app f (subst a bound-id actual-value))]
+    [id (s) (if (symbol=? s bound-id) (num actual-value) wae)]
+    [app (f a) (app f (subst a idtf val))]
     )
   )
-
-
-(subst (app 'fn (id 'x)) 'x 1)
-(subst (add (id 'x)(app 'fn (id 'x))) 'x 2)
-(subst (add (id 'x)(app 'fn (id 'y))) 'x 2)
-(interp (app 'f (num 1)) (fundef 'f 'x (add (id 'x) (num 3))))
+    
+    
