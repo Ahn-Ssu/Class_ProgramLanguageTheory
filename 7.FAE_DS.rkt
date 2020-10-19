@@ -25,8 +25,8 @@
   [add (lhs FAE?) (rhs FAE?)]
   [sub (lhs FAE?) (rhs FAE?)]
   [id (name symbol?)]
-  [fun (param symbol?)(body FAE?)]
-  [app (ftn symbol?)(arg FAE?)]
+  [fun (param symbol?) (body FAE?)]
+  [app (ftn FAE?)(arg FAE?)]
   )
 
 ; 0-2) Type_DefredSub
@@ -37,7 +37,7 @@
         (ds DefrdSub?)]
   )
 
-; 1) parser for FWAE
+; 1) parser for FAE
 (define (parse fae)
   (match fae
     [(? number?) (num fae)]
@@ -50,6 +50,11 @@
     [else (error 'parse "bad syntax: ~a" fae)]
     )
   )
+(parse '{with {x 5} 4})
+(parse '{with {x 3} {+ x x}})
+(parse '{with {z {fun {x} {+ x y}}} {with {y 10} z}})
+(parse '{with {f {fun {y} {+ 5 y}}} {+ f 10}})
+(parse '{with {x 3} {with {f {fun {y} {+ x y}}} {with {x 5} {f 4}}}})
 
 ; 2) interpreter
 (define (interp fae ds)
@@ -93,3 +98,4 @@
 (define num- (num-op -))
 
 
+;(interp (parse '{with {x 3} {with {f {fun {y} {+ x y}}} {with {x 5} {f 4}}}}) (mtSub))
