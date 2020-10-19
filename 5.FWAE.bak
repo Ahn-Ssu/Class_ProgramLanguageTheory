@@ -28,7 +28,7 @@
   [id (name symbol?)]
   [with (name symbol?)(name-val FWAE?)(body FWAE?)]
   [fun (param symbol?)(body FWAE?)]
-  [app (ftn FWAE?)(arg FWAE?)]
+  [app (ftn symbol?)(arg FWAE?)]
   )
 
 ; 1) parser for FWAE
@@ -40,7 +40,7 @@
     [(? symbol?) (id fwae)]
     [(list 'with (list i v) e) (with i (parse v) (parse e))]
     [(list 'fun (list p) b) (fun p (parse b))]
-    [(list f a) (app (parse f) (parse a))]
+    [(list f a) (app f (parse a))]
     [else (error 'parse "bad syntax: ~a" fwae)]
     )
   )
@@ -82,8 +82,3 @@
   )
 (define num+ (num-op +))
 (define num- (num-op -))
-
-(parse '(+ 1 2))
-(parse '(+ 1 {fun {x}{+ 1 x}}))
-(parse '({fun {x}{+ 1 x}} {fun {k}{+ 1 k}}))
-(parse '(1 2))

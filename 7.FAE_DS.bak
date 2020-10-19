@@ -25,8 +25,8 @@
   [add (lhs FAE?) (rhs FAE?)]
   [sub (lhs FAE?) (rhs FAE?)]
   [id (name symbol?)]
-  [fun (param symbol?) (body FAE?)]
-  [app (ftn FAE?)(arg FAE?)]
+  [fun (param symbol?)(body FAE?)]
+  [app (ftn symbol?)(arg FAE?)]
   )
 
 ; 0-2) Type_DefredSub
@@ -37,7 +37,7 @@
         (ds DefrdSub?)]
   )
 
-; 1) parser for FAE
+; 1) parser for FWAE
 (define (parse fae)
   (match fae
     [(? number?) (num fae)]
@@ -46,18 +46,10 @@
     [(? symbol?) (id fae)]
     [(list 'with (list i v) e) (app (fun i (parse e)) (parse v))]
     [(list 'fun (list p) b) (fun p (parse b))]
-    [(list f a) (app (parse f) (parse a))]
+    [(list f a) (app f (parse a))]
     [else (error 'parse "bad syntax: ~a" fae)]
     )
   )
-(parse '{with {x 5} 4})
-(parse '{with {x 3} {+ x x}})
-(parse '{with {z {fun {x} {+ x y}}} {with {y 10} z}})
-(parse '{f 10})
-(parse '{with {f {fun {y} {+ 5 y}}} {f 10}})
-(parse '{with {x 3} {with {f {fun {y} {+ x y}}} {with {x 5} {f 4}}}})
-(test (parse '{+ 1 {fun {x} {+ x y}}}) '())
-(test (parse '(1 2)) '())
 
 ; 2) interpreter
 (define (interp fae ds)
@@ -95,11 +87,9 @@
 ; 5) lambda concept
 (define (num-op op)
   (lambda (x y)
-    (num (op (numV-n x) (numV-n y))))
+    (num (op (num-n x) (num-n y))))
   )
-
 (define num+ (num-op +))
 (define num- (num-op -))
 
-(num-n (num 3))
-(interp (parse '{with {x 3} {with {f {fun {y} {+ x y}}} {with {x 5} {f 4}}}}) (mtSub))
+

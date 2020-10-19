@@ -1,0 +1,105 @@
+#lang plai
+; LFAE
+;----------------------------------------
+;[BNF]
+; <LFAE> ::= <num>
+;          | {+ <LFAE> <LFAE>}
+;          | {- <LFAE> <LFAE>}
+;          | <id>
+;          | {with {<id> <LFAE>} <LFAE>}
+;          | {<id> <LFAE>}
+;          | {fun {<id>} <LFAE>}
+;
+;----------------------------------------
+;[Require]
+; 1) parser for FAE
+; 2) interpreter
+; 3) lookup for Deferred Substitution (cache!)
+; 4) LFAE values : value container
+; 5) BOX : Evaluation delay
+; 6) strict function
+; 6) lambda concept
+;----------------------------------------
+
+; 0-1) Type_FAE
+(define-type LFAE
+  [num (n number?)]
+  [add (lhs LFAE?) (rhs LFAE?)]
+  [sub (lhs LFAE?) (rhs LFAE?)]
+  [id (name symbol?)]
+  [fun (param symbol?) (body LFAE?)]
+  [app (ftn LFAE?)(arg LFAE?)]
+  )
+
+; 0-2) Type_DefredSub
+(define-type DefrdSub
+  [mtSub]
+  [aSub (name symbol?)
+        (value LFAE-Value?)
+        (ds DefrdSub?)]
+  )
+
+; 1) parser for FAE
+(define (parse lfae)
+  (match lfae
+    [(? number?) (num lfae)]
+    [(list '+ l r) (add (parse l) (parse r))]
+    [(list '- l r) (sub (parse l) (parse r))]
+    [(? symbol?) (id lfae)]
+    [(list 'with (list i v) e) (app (fun i (parse e)) (parse v))]
+    [(list 'fun (list p) b) (fun p (parse b))]
+    [(list f a) (app (parse f) (parse a))]
+    [else (error 'parse "bad syntax: ~a" lfae)]
+    )
+  )
+
+; 2) interpreter
+(define (interp lfae ds)
+  (type-case LFAE lfae
+    [num (n) (numV n)]
+    [add (l r) (num+ (interp l ds) (interp r ds))]
+    [sub (l r) (num- (interp l ds) (interp r ds))]
+    [id (name) (lookup name ds)]
+    [fun (param body-expr) (closureV param body-expr ds)]
+    [app (f a) (local [(define ftn-v ((strict interp f ds)))
+                       (define arg-v (exprV a ds (box #f)))]
+                 (interp (closureV-body ftn-v) (aSub (closureV-param ftn-v)
+                                                     arg-v
+                                                     (closureV-ds ftn-v)))
+                 )]
+    )
+  )
+
+; 3) lookup for Deferred Substitution (cache!)
+(define (lookup name ds)
+  (type-case DefrdSub ds
+    [mtSub () (error 'lookup "free identifier")]
+    [aSub (i v saved) (if (symbol=? name i) v (lookup name saved))]
+    )
+  )
+
+; 4) LFAE values : value container
+(define-type LFAE-Value
+  [numV (n number?)]
+  [closureV (param symbol?) (body LFAE?) (ds DefrdSub?)]
+  [exprV (expr LFAE?) (ds DefrdSub?) (value (box/c (or/c false LFAE-Value?)))]
+  )
+
+; 5) strict : LFAE-Value -> LFAE-Value // Forcing Evaluation 
+(define (strict v)
+  (type-case LFAE-Value v
+    [exprV (expr ds v-box) (if (not (unbox v-box)) (local[(define v (strict (interp expr ds)))]
+                                                     (begin (set-box! v-box v) v))
+                               (unbox v-box))]
+    [else v]
+    )
+  )
+
+; 6) lambda concept
+(define (num-op op)
+  (lambda (x y)
+    (num (op (numV-n (strict x)) (numV-n (strict y)))))
+  )
+
+(define num+ (num-op +))
+(define num- (num-op -))
