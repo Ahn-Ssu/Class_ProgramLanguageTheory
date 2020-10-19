@@ -58,10 +58,10 @@
   (type-case LFAE lfae
     [num (n) (numV n)]
     [add (l r) (num+ (interp l ds) (interp r ds))]
-    [sub (l r) (num- (interp l ds) (interp r ds))]
+    [sub (l r) (num- (interp l ds) (interp r ds))] 
     [id (name) (lookup name ds)]
     [fun (param body-expr) (closureV param body-expr ds)]
-    [app (f a) (local [(define ftn-v ((strict interp f ds)))
+    [app (f a) (local [(define ftn-v ((strict (interp f ds))))
                        (define arg-v (exprV a ds (box #f)))]
                  (interp (closureV-body ftn-v) (aSub (closureV-param ftn-v)
                                                      arg-v
@@ -103,3 +103,6 @@
 
 (define num+ (num-op +))
 (define num- (num-op -))
+
+(parse '{{fun {f} {f 1}} {fun {x} {+ x 1}}})
+(interp (parse '{{fun {f} {f 1}} {fun {x} {+ x 1}}}) (mtSub))
