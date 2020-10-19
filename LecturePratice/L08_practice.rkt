@@ -54,7 +54,7 @@
     [num (n) n]
     [add (l r) (+ (interp l fundefs) (interp r fundefs))]
     [sub (l r) (- (interp l fundefs) (interp r fundefs))]
-    [with (x i b) (interp (subst b x (interp i fundefs)) fundefs)]
+    [with (i v e) (interp (subst e i (interp v fundefs)) fundefs)]
     [id (s) (error 'interp "free identifier")]
     [app (f a)
          (local

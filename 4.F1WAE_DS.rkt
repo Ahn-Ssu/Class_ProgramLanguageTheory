@@ -73,7 +73,7 @@
     [add (l r) (+ (interp l fundefs ds) (interp r fundefs ds))]
     [sub (l r) (- (interp l fundefs ds) (interp r fundefs ds))]
     [id (s) (lookup s ds)]
-    [with (i v e) (interp e (aSub i (interp v ds) ds))]
+    [with (i v e) (interp e fundefs (aSub i (interp v fundefs ds) ds))]
     [app (ftn arg) (local [(define a-fundef (lookup-fundefs ftn fundefs))]
                 (interp (fundef-body a-fundef) fundefs (aSub (fundef-arg-name a-fundef)
                                                              (interp arg fundefs ds)
@@ -98,3 +98,21 @@
     [aSub (i v saved) (if (symbol=? name i) v (lookup name saved))]
     )
   )
+
+
+(parse '{f 1})
+(parse-fd '(deffun (f x) (+ x 3)))
+(interp (app 'f (num 1)) (list (fundef 'f 'x (add (id 'x) (num 3)))) (mtSub))
+(parse '{f {f {f 3}}})
+(interp (app 'f (app 'f (app 'f (num 3)))) (list (fundef 'f 'x (add (id 'x) (num 3)))) (mtSub))
+(parse '{+ {f 1} {+ {f 7} {f 2}}})
+(interp (add (app 'f (num 7)) (app 'f (num 2))) (list (fundef 'f 'x (add (id 'x) (num 3)))) (mtSub))
+(interp (add (app 'f (num 1)) (add (app 'f (num 7)) (app 'f (num 2))))
+(list (fundef 'f 'x (add (id 'x) (num 3)))) (mtSub))
+
+(interp (app 'f (num 1)) (list (fundef 'f 'x (sub (num 20) (app 'twice (id 'x)))) (fundef 'twice 'y (add (id 'y) (id 'y)))) (mtSub))
+
+'lll
+(parse '{with {y 2} {f 10}})
+(parse-fd '{deffun {f x}{+ y x}})
+(interp (with 'y (num 10)  (app 'f (num 10))) (list (fundef 'f 'x (add (id 'y) (id 'x)))) (mtSub))
