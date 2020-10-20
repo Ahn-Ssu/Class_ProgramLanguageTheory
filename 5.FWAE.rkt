@@ -45,21 +45,7 @@
     )
   )
 
-; 2) interpreter
-(define (interp fwae)
-  (type-case FWAE fwae
-    [num (n) fwae]
-    [add (l r) (num+ (interp l) (interp r))]
-    [sub (l r) (num- (interp l) (interp r))]
-    [id (s) (error 'interp "free identifier")]
-    [with (i v e) (interp (subst e i (interp v)))]
-    [fun (p b) (fwae)]
-    [app (f a) (local [(define ftn (interp f))]
-                 (interp (subst (fun-body ftn)
-                                (fun-param ftn)
-                                (interp a))))]
-    )
-  )
+
 
 ; 3) substitution
 (define (subst fwae idtf val)
@@ -83,7 +69,32 @@
 (define num+ (num-op +))
 (define num- (num-op -))
 
-(parse '(+ 1 2))
-(parse '(+ 1 {fun {x}{+ 1 x}}))
-(parse '({fun {x}{+ 1 x}} {fun {k}{+ 1 k}}))
-(parse '(1 2))
+
+; 2) interpreter
+(define (interp fwae)
+  (type-case FWAE fwae
+    [num (n) fwae]
+    [add (l r) (num+ (interp l) (interp r))]
+    [sub (l r) (num- (interp l) (interp r))]
+    [id (s) (error 'interp "free identifier")]
+    [with (i v e) (interp (subst e i (interp v)))]
+    [fun (p b) fwae]
+    [app (f a)  (local [(define ftn (interp f))]
+                 (interp (subst (fun-body ftn)
+                                (fun-param ftn)
+                                (interp a))))]
+    )
+  )
+
+(parse '((fun (x)(+ x x)) 10))
+(interp (app (fun 'x (add (id 'x) (id 'x))) (num 10)))
+(parse '((fun (x)(x 1))(fun (y) {+ y y})))
+(interp (app (fun 'x (app (id 'x) (num 1))) (fun 'y (add (id 'y) (id 'y)))))
+(parse '((+ 3 4) 5))
+(interp (app (add (num 3) (num 4)) (num 5)))
+
+
+;(parse '(+ 1 2))
+;(parse '(+ 1 {fun {x}{+ 1 x}}))
+;(parse '({fun {x}{+ 1 x}} {fun {k}{+ 1 k}}))
+;(parse '(1 2))
