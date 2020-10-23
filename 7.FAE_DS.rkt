@@ -6,7 +6,7 @@
 ;          | {+ <FAE> <FAE>}
 ;          | {- <FAE> <FAE>}
 ;          | <id>
-;          | {with {<id> <FAE>} <FAE>}
+;          | {with {<id> <FAE>} <FAE>} (only for concrete syntax)
 ;          | {<id> <FAE>}
 ;          | {fun {<id>} <FAE>}
 ;
@@ -75,7 +75,7 @@
                  )]
     )
   )
-
+(app (fun 'x (app (fun 'f (app (fun 'x (app (id 'f) (num 4))) (num 5))) (fun 'y (add (id 'x) (id 'y))))) (num 3))
 
 
 ; 3) lookup for Deferred Substitution (cache!)
@@ -95,7 +95,7 @@
 ; 5) lambda concept
 (define (num-op op)
   (lambda (x y)
-    (num (op (numV-n x) (numV-n y))))
+    (numV (op (numV-n x) (numV-n y))))
   )
 
 (define num+ (num-op +))
@@ -103,3 +103,36 @@
 
 (num-n (num 3))
 (interp (parse '{with {x 3} {with {f {fun {y} {+ x y}}} {with {x 5} {f 4}}}}) (mtSub))
+(parse '{with {x 3} {with {f {fun {y}{+ x y}}} {with {x 5} {f 4}}}})
+
+(parse '{with {x 3}{with {f {fun {y}{+ x y}}} {with {x 5} {f 4}}}})
+(app (fun 'x(app (fun 'f(app (fun 'x (app (id 'f) (num 4))) (num 5))) (fun 'y (add (id 'x) (id 'y))))) (num 3))
+(parse '(fun {x}{f 4}))
+(parse '({fun {x}{f 4}}5))
+(parse '((fun {x} ((fun {f}({fun {x}{f 4}} 5))(fun {y}{+ x y}))) 3))
+
+(parse '{with {y 10}{fun {x}{+y x}}})
+(interp (parse '{with {y 10}{fun {x}{+ y x}}}) (mtSub))
+(parse '{{fun {x}{x 7}}{fun {x}{+ x 13}}})
+(interp (app (fun 'x (app (id 'x) (num 7))) (fun 'x (add (id 'x) (num 13)))) (mtSub))
+(parse '{{fun {x}{+ x 13}}{fun {x}{x 7}}})
+;(interp (app (fun 'x (add (id 'x) (num 13))) (fun 'x (app (id 'x) (num 7))))(mtSub))
+
+(parse '{with {y 10}{fun {x}{+ y x}}}) ; (app (fun 'y (fun 'x (add (id 'y) (id 'x)))) (num 10))
+(interp (app (fun 'y (fun 'x (add (id 'y) (id 'x)))) (num 10)) (mtSub))
+(parse '{with {y 10}{{fun {x}{+ y x}}20}})
+(interp (app (fun 'y (app (fun 'x (add (id 'y) (id 'x))) (num 20))) (num 10)) (mtSub))
+'__otherExample1__
+(parse '{with {x 3}{fun {x}{+ x 1}}})
+(interp (app (fun 'x (fun 'x (add (id 'x) (id 'y)))) (num 3)) (mtSub))
+(parse '{with {x 3}({fun {x}{+ x 1}} x)})
+(interp (app (fun 'x (app (fun 'x (add (id 'x) (num 1))) (id 'x))) (num 3)) (mtSub))
+'__otherExample2__
+(parse '{with {x 3}{{fun {x}{x 2}}{fun {k}{+ k 77}}}})
+(interp (app (fun 'x (app (fun 'x (app (id 'x) (num 2))) (fun 'k (add (id 'k) (num 77))))) (num 3)) (mtSub))
+'__otherExample3__
+(parse '{with {z {fun {x} {+ x y}}} {with {y 10} z}})
+(interp (app (fun 'z (app (fun 'y (id 'z)) (num 10))) (fun 'x (add (id 'x) (id 'y)))) (mtSub))
+(parse '{{fun {f}{f 1}}{fun {x}{+ x 1}}})
+
+(interp (parse '{{fun {x}{+ {+ x x}{+ x x}}}{- {+ 4 5}{+ 8 9}}})(mtSub))

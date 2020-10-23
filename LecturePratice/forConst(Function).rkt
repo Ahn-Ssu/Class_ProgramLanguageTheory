@@ -60,14 +60,18 @@
     [add (l r) (num+ (interp l ds) (interp r ds))]
     [sub (l r) (num- (interp l ds) (interp r ds))] 
     [id (name) (strict (lookup name ds))]
-    [fun (param body-expr)    
-               (closureV param body-expr ds)]
+    [fun (param body-expr)
+         (local [(define constV body-expr)]
+           (if (num? constV) (numV (num-n constV))
+               (closureV param body-expr ds)))]
     [app (f a) (local [(define ftn-v  (strict (interp f ds)))
+                 ;     (define constV (closureV-body ftn-v))
                        (define arg-v (exprV a ds (box #f)))]
+                 (if (numV? ftn-v) ftn-v 
                  (interp (closureV-body ftn-v) (aSub (closureV-param ftn-v)
                                                      arg-v
                                                      (closureV-ds ftn-v))))
-                 ]
+                 )]
     )
   )
 
@@ -131,4 +135,4 @@
 ;(run '{{fun {x} {+ x x}}{+ 1 {fun {y} 2}}} (mtSub))
 '{fun {x} 1}
 (run '{fun {x} 1} (mtSub))
-(run '{fun {x} {+1 2}} {mtSub})
+(run '{fun {x} {+ 1 2}} {mtSub})

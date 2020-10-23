@@ -49,7 +49,7 @@
     [add (l r) (num+ (interp l) (interp r))]
     [sub (l r) (num- (interp l) (interp r))]
     [id (s) (error 'interp "free identifier")]
-    [fun (p b) (fae)]
+    [fun (p b) fae]
     [app (f a) (local [(define ftn (interp f))]
                  (interp (subst (fun-body ftn)
                                 (fun-param ftn)
@@ -76,3 +76,13 @@
   )
 (define num+ (num-op +))
 (define num- (num-op -))
+
+'__dynamicScopeIssue__ 
+(parse '{with {z {fun {x} { + x y}}}{with {y 10} z}})
+(interp (app (fun 'z (app (fun 'y (id 'z)) (num 10))) (fun 'x (add (id 'x) (id 'y)))))
+(interp (parse '{with {z {fun {x} {+ x y}}}{with {y 10} z}}))
+(parse '{with {z {fun {x} {+ x y}}}{with {y 10} z}})
+
+'__dynamicScopeIssue__
+
+(parse '{+ x y z})
