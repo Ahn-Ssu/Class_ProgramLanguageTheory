@@ -81,12 +81,12 @@
 (app (fun 's 'x (app (fun 's 'f (app (fun 's 'x (app (id 'f) (num 4))) (num 5))) (fun 'd 'y (add (id 'x) (id 'y))))) (num 3)))
 (test (parse '{with {x 3} {with {f {s fun {y} {+ x y}}} {with {x 5} {f 4}}}})
       (app (fun 's 'x (app (fun 's 'f (app (fun 's 'x (app (id 'f) (num 4))) (num 5))) (fun 's 'y (add (id 'x) (id 'y))))) (num 3)))
-"Test case given_parse end"
+"parse end"
 
 ;------------------------------------------------------------------------------------
 ; Problems 2.	Implement a Interpreter for SDFAE  
 ; Solved by myself: Y
-; Time taken: 6m
+; Time taken: 31m
 ; [contract] parse: SDFAE -> SDFAE-Value (=result Value)
 ; [purpose] interprete SDFAE to actual value type(SDFAE-Value)
 
@@ -103,15 +103,14 @@
                  (interp (closureV-body f-val) (aSub (closureV-param f-val)
                                                      a-val
                                                      (closureV-ds f-val)))
-                 (interp (fun-body f-val) (aSub (fun-param f-val) (interp a-val ds) ds))
+                 (interp (fun-body f-val) (aSub (fun-param f-val) a-val ds))
                  )
                  )]
     )
   )
 
 "Test case given_interp start"
-(run '{with {x 3}{+ x 4}})
-(parse '{with {x 3} {with {f {d fun {y} {+ x y}}} {with {x 5} {f 4}}}})
-(SDFAE? (fun 'd 'y (add (id 'x) (id 'y))))
-(run '{with {x 3} {with {f {d fun {y} {+ x y}}} {with {x 5} {f 4}}}})
-"Test case given_interp end"
+(test (run '{with {x 3} {with {f {d fun {y} {+ x y}}} {with {x 5} {f 4}}}}) (numV 9))
+(test (run '{with {x 3} {with {f {s fun {y} {+ x y}}} {with {x 5} {f 4}}}}) (numV 7))
+"interp end"
+;------------------------------------------------------------------------------------
