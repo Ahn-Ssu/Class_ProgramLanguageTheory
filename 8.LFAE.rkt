@@ -127,8 +127,11 @@
 '{{fun {x} 0}{+ 1 {fun {y}2}}}
 (run '{{fun {x} 0}{+ 1 {fun {y}2}}} (mtSub))
 '{{fun {x} x}{+ 1 {fun {y} 2}}}
-(run '{{fun {x} x}{+ 1 {fun {y} 2}}} (mtSub))
+;(run '{{fun {x} x}{+ 1 {fun {y} 2}}} (mtSub))
 ;(run '{{fun {x} {+ x x}}{+ 1 {fun {y} 2}}} (mtSub))
 '{fun {x} 1}
 (run '{fun {x} 1} (mtSub))
 (run '{fun {x} {+1 2}} {mtSub})
+
+; (parse '{f 1 2 3}) ->  parse: bad syntax: (f 1 2 3)
+(parse '{{{f 1}2}3})

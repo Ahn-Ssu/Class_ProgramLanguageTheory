@@ -58,17 +58,19 @@
   (type-case LFAE lfae
     [num (n) (numV n)]
     [add (l r) (num+ (interp l ds) (interp r ds))]
-    [sub (l r) (num- (interp l ds) (interp r ds))]
-    [id (name) (lookup name ds)]
-    [fun (param body-expr) (closureV param body-expr ds)]
-    [app (f a) (local [(define ftn-v ((strict interp f ds)))
+    [sub (l r) (num- (interp l ds) (interp r ds))] 
+    [id (name) (strict (lookup name ds))]
+    [fun (param body-expr)    
+               (closureV param body-expr ds)]
+    [app (f a) (local [(define ftn-v  (strict (interp f ds)))
                        (define arg-v (exprV a ds (box #f)))]
                  (interp (closureV-body ftn-v) (aSub (closureV-param ftn-v)
                                                      arg-v
-                                                     (closureV-ds ftn-v)))
-                 )]
+                                                     (closureV-ds ftn-v))))
+                 ]
     )
   )
+
 
 ; 3) lookup for Deferred Substitution (cache!)
 (define (lookup name ds)
@@ -89,8 +91,9 @@
 (define (strict v)
   (type-case LFAE-Value v
     [exprV (expr ds v-box) (if (not (unbox v-box)) (local[(define v (strict (interp expr ds)))]
-                                                     (begin (set-box! v-box v) v))
+                                                     (begin (set-box! v-box v) strict v ))
                                (unbox v-box))]
+    
     [else v]
     )
   )
@@ -98,8 +101,34 @@
 ; 6) lambda concept
 (define (num-op op)
   (lambda (x y)
-    (num (op (numV-n (strict x)) (numV-n (strict y)))))
+    (numV (op (numV-n (strict x)) (numV-n (strict y)))))
   )
 
 (define num+ (num-op +))
 (define num- (num-op -))
+
+(define (run sexp ds)
+  (interp (parse sexp) ds))
+
+'__interpApp__strictF__
+(parse '{{fun {f} {f 1}} {fun {x} {+ x 1}}})
+(interp (parse '{{fun {f} {f 1}} {fun {x} {+ x 1}}}) (mtSub))
+'__interpId__strictID__
+(parse '{{fun {x} {{fun {x} {+ x 1}}x}}3})
+(interp (app (fun 'x (app (fun 'x (add (id 'x) (num 1))) (id 'x))) (num 3)) (mtSub))
+
+(run '{with {x 3}{{fun {x}{x 2}}{fun {k}{+ k 77}}}} (mtSub))
+(run '{with {y 10}{fun {x}{+ y x}}} (mtSub))
+(run  '{with {z {fun {x} {+ x y}}} {with {y 10} z}} (mtSub))
+
+(parse '{{fun {x}{+ {+ x x}{+ x x}}}{- {+ 4 5}{+ 8 9}}})
+(run '{{fun {x}{+ {+ x x}{+ x x}}}{- {+ 4 5}{+ 8 9}}} (mtSub))
+
+'{{fun {x} 0}{+ 1 {fun {y}2}}}
+(run '{{fun {x} 0}{+ 1 {fun {y}2}}} (mtSub))
+'{{fun {x} x}{+ 1 {fun {y} 2}}}
+(run '{{fun {x} x}{+ 1 {fun {y} 2}}} (mtSub))
+;(run '{{fun {x} {+ x x}}{+ 1 {fun {y} 2}}} (mtSub))
+'{fun {x} 1}
+(run '{fun {x} 1} (mtSub))
+(run '{fun {x} {+1 2}} {mtSub})
