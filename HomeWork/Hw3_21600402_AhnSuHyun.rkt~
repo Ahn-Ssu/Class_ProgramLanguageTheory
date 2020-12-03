@@ -23,7 +23,7 @@
     [fun     (sd symbol?) (param symbol?) (body SDFAE?)]
     [app     (ftn SDFAE?) (arg SDFAE?)])
 
-; for keeping static scope
+; for keeping static scope 
 (define-type DefrdSub
   [mtSub]
   [aSub (name symbol?)
