@@ -167,18 +167,12 @@
   )
   )
 
-;[exprV (expr BFAE?) (ds DefrdSub?) (st Store?) (value (box/c (or/c false BFAE-Value?)))]
-; 5) strict : Value*Store -> LFAE-Value // Forcing Evaluation
-;(define-type Value*Store
- ; [v*s (value BFAE-Value?)(store Store?)]
- ; )
-;
 
 (define (strict v)
          (type-case BFAE-Value v
            [exprV (expr ds st v-box) (if (not (unbox v-box)) (local [(define val (strict (v*s-value (interp expr ds st))))]
                                                              (begin (set-box! v-box val)
-                                                                    (strict v)))
+                                                                    (strict val)))
                                                              (unbox v-box))]
            [else v])
   )
