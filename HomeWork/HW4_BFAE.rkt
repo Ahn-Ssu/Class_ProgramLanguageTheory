@@ -116,14 +116,13 @@
 
 ; [contract] malloc : (void) -> integer(address)
 ; [purpose] to generate new address number 
-(define malloc
-  (local ([define max-address (box -1)])
-    (lambda (store)
-      (begin
-        (set-box! max-address (+ 1 (unbox max-address)))
-        (unbox max-address)))
-    )
-  )
+; malloc : Store -> Integer
+(define (malloc st)
+(+ 1 (max-address st))) ; what will be the first address?
+; max-address: Store -> Integer
+(define (max-address st) (type-case Store st
+[mtSto () 0] [aSto (n v st)
+(max n (max-address st))]))
 
 ; [contract] interp-two : BFAE BFAE DefrdSub Store function(lambda) -> Value*Store
 ; [purpose] to perform the interp twice and produce Value*Store type
@@ -171,16 +170,11 @@
   (interp (parse sexp) ds st)
   )
 
-(parse '{newbox {+ 2 3}})
-(run '{newbox {+ 2 3}} {mtSub}(mtSto))
+(parse '{with {b {newbox 7}}
+          {setbox b 10}})
 
-(run '7 (mtSub) (mtSto))
-(run '{+ 7 6} (mtSub) (mtSto))
-(run '{newbox 1} (mtSub) (mtSto))
-(run '{with {b {newbox {+ 2 3}}} {openbox b}} (mtSub) (mtSto))
 
 (run '{with {b {newbox 7}}
-          {seqn {setbox b 10}
-                     {openbox b}}} (mtSub) (mtSto))
-(display "max-address를 static으로 구현하면 address가 계속 증가 되는데 이거는 어떻게 해야하는가용")
-(run '{{fun {x} {+ 1 1}} {with {b {newbox 7}} {seqn {setbox b 10} {openbox b}}}} (mtSub) (mtSto))
+          {setbox b 10}} (mtSub) (mtSto))
+
+
