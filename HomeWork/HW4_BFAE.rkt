@@ -183,3 +183,4 @@
           {seqn {setbox b 10}
                      {openbox b}}} (mtSub) (mtSto))
 (display "max-address를 static으로 구현하면 address가 계속 증가 되는데 이거는 어떻게 해야하는가용")
+(run '{{fun {x} {+ 1 1}} {with {b {newbox 7}} {seqn {setbox b 10} {openbox b}}}} (mtSub) (mtSto))
