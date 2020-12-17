@@ -1,4 +1,5 @@
 #lang plai
+;전에 했던 구현은 store를 안쓰는 상태로 했었는데, 안쓰니까 못풀겠어요
 ; L 21-22, Variables
 ; <RBMFAE> ::= <num>
 ;          | {+ <RBMFAE> <RBMFAE>}
@@ -95,6 +96,7 @@
     )
   )
 
+
 (define (num-op op)
   (lambda(x y)
     (numV (op (numV-n x) (numV-n y)))
@@ -142,10 +144,11 @@
                                           f-store))]
                       [else (error interp "trying to apply a number")]
                       )])]
-    [newbox (val) (type-case Value*Store (interp val ds st)
-                  [v*s (vl st1) (local [(define a (malloc st1))]
-                                  (v*s (boxV a)
-                                       (aSto a vl st1)))])]
+;  [newbox (val) (type-case Value*Store (interp val ds st)
+;                  [v*s (vl st1) (local [(define a (malloc st1))]
+;                                  (v*s (boxV a)
+;                                       (aSto a vl st1)))])]
+  [newbox (val-expr) (boxV (box (interp val-expr ds)))]
     [openbox (bx-expr) (type-case Value*Store (interp bx-expr ds st)
                        [v*s (bx-val st1) (v*s (store-lookup (boxV-address bx-val) st1)
                                               st1)])]
@@ -163,14 +166,6 @@
   )
 
 
-(define (interp-two expr1 expr2 ds st handle)
-  (type-case Value*Store (interp expr1 ds st)
-    [v*s (val1 st2)
-         (type-case Value*Store (interp expr2 ds st2)
-           [v*s (val2 st3) (handle val1 val2 st3)])]
-    )
-  )
-
 ;----------------------------------------------------------
 (parse '{with (swap (refun {x} (refun {y} {with {z x} {seqn {setvar x y}{setvar y z}}})))
               (with (a 10) (with (b 20) (seqn ((swap a) b) b)))})
@@ -182,5 +177,5 @@
       (fun 'x (fun 'y (app (fun 'z (seqn (setvar 'x (id 'y)) (setvar 'y (id 'z)))) (id 'x)))))
 (interp (app (fun 'swap (app (fun 'a (app (fun 'b (seqn (app (app (id 'swap) (id 'a)) (id 'b)) (id 'a))) (num 20))) (num 10)))
       (fun 'x (fun 'y (app (fun 'z (seqn (setvar 'x (id 'y)) (setvar 'y (id 'z)))) (id 'x)))))
-        (mtSub) (mtSto))
+        (mtSub))
 
