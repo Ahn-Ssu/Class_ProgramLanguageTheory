@@ -50,7 +50,7 @@
 (define-type RBMFAE-Value
   [numV (n number?)]
   [closureV (param symbol?) (body RBMFAE?) (ds DefrdSub?)]
-  [refcolsV (param symbol?) (body RBMFAE?) (ds DefrdSub?)]
+  [refclosV (param symbol?) (body RBMFAE?) (ds DefrdSub?)]
   [boxV (address integer?)]
   )
 
@@ -135,7 +135,7 @@
                                                   (interp c-body
                                                           (aSub c-param new-address c-ds)
                                                           (aSto new-address a-value a-store)))])]
-                      [refcolsV (rc-param rc-body rc-ds)
+                      [refclosV (rc-param rc-body rc-ds)
                                 (local ([define address (lookup (id-name a) ds)])
                                   (interp rc-body
                                           (aSub rc-param address rc-ds)
